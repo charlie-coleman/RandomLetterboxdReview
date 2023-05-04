@@ -20,7 +20,11 @@ app.config["CORS_HEADERS"] = 'Content-Type'
 @app.route('/api/v1/random', methods=['GET'])
 @cross_origin()
 def random_review():
-  return data.lbxddata.get_random_review()
+  reviewstr = data.lbxddata.get_random_review()
+  if len(reviewstr) > 400:
+    return reviewstr[:395] + "..."
+  else:
+    return reviewstr
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()

@@ -108,7 +108,7 @@ class LetterboxdRSS:
   def get_random_review(self):
     self.update_if_necessary()
     
-    index = random.randint(0, len(self.reviews))
+    index = random.randint(0, len(self.reviews) - 1)
     
     return str(self.reviews[index])
   
