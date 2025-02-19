@@ -4,6 +4,7 @@ import re
 import random
 import datetime as dt
 
+REVIEW_REGEX = re.compile("letterboxd-review-[0-9]+")
 SUMMARY_REGEX = re.compile('^<p><img src=\".*\" \/><\/p> <p>(.*)<\/p>$')
 
 class Review:
@@ -78,15 +79,18 @@ class LetterboxdRSS:
   def parse_rss_entries(self):
     self.feed = feedparser.parse(self.rss_url)
     for entry in self.feed.entries:
+      if not REVIEW_REGEX.match(entry.get('guid', "")):
+        continue
+      
       date = ""
-      name = entry['letterboxd_filmtitle']
-      year = entry['letterboxd_filmyear']
+      name = entry.get('letterboxd_filmtitle', "Missing title")
+      year = entry.get('letterboxd_filmyear', 'No year')
       uri = ""
-      rating = "" if 'letterboxd_memberrating' not in entry else float(entry['letterboxd_memberrating'])
-      rewatch = entry['letterboxd_rewatch'] == 'Yes'
+      rating = entry.get('letterboxd_memberrating', None)
+      rewatch = entry.get('letterboxd_rewatch', None) == 'Yes'
       review = SUMMARY_REGEX.match(entry['summary']).group(1)
       tags = ""
-      watched_date = entry['letterboxd_watcheddate']
+      watched_date = entry.get('letterboxd_watcheddate', "Date missing")
       
       reviewobj = Review(date, name, year, uri, rating, rewatch, review, tags, watched_date)
       
@@ -122,6 +126,8 @@ class LetterboxdRSS:
       
       
 if __name__ == '__main__':
-  rss = LetterboxdRSS("itswill", './reviews.csv')
+  rss = LetterboxdRSS("itswill", './data/reviews.csv')
   
-  print(rss.get_review_from_title("Escape from L.A."))
+  for r in rss.reviews:
+    if len(str(r)) > 400:
+      print(f'{len(str(r))} - {str(r)[:100]} ... {str(r)[350:395]}...')
