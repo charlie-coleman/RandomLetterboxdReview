@@ -5,7 +5,7 @@ import random
 import datetime as dt
 
 REVIEW_REGEX = re.compile("letterboxd-review-[0-9]+")
-SUMMARY_REGEX = re.compile('^<p><img src=\".*\" \/><\/p> <p>(.*)<\/p>$')
+SUMMARY_REGEX = re.compile('^(<p><img src=\".*\" \/><\/p> )?<p>(.*)<\/p>$')
 
 class Review:
   date = "",
@@ -88,7 +88,7 @@ class LetterboxdRSS:
       uri = ""
       rating = entry.get('letterboxd_memberrating', None)
       rewatch = entry.get('letterboxd_rewatch', None) == 'Yes'
-      review = SUMMARY_REGEX.match(entry['summary']).group(1)
+      review = SUMMARY_REGEX.match(entry['summary']).group(2)
       tags = ""
       watched_date = entry.get('letterboxd_watcheddate', "Date missing")
       
